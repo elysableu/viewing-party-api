@@ -47,6 +47,11 @@ group :development, :test do
   gem "shoulda-matchers"
 end
 
+group :test do 
+  gem "webmock"
+  gem "vcr"
+end
+
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
