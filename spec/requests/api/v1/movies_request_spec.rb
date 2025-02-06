@@ -3,27 +3,31 @@ require "rails_helper"
 RSpec.describe "Movies Endpoint" do
   describe "happy path" do
     it "can retrieve top-rated movies for themoviedb api" do
-      get "/api/v1/movies"
+      json_response = File.read('spec/fixtures/themoviedb_top_rated_response.json')
 
+
+      stub_request(:get, "https://api.themoviedb.org/3/movie/top_rated?total_results=20").
+         with(
+           headers: {
+          'Accept'=>'*/*',
+          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'Authorization'=>Rails.application.credentials.themoviedb[:key],
+          'User-Agent'=>'Faraday v2.10.1'
+           }).
+         to_return(status: 200, body: json_response)
+
+      get "/api/v1/movies/top_rated?total_results=20"
       expect(response).to be_successful
-      json = JSON.parse(response.body, symbolize_names: true)[0]
+      json = JSON.parse(response.body, symbolize_names: true)
+      
+      expect(json[:data].count).to eq(20)
 
-      expect(json[:data][:id]).to be_nil
-      expect(json[:data][:type]).to eq("movie")
-      expect(json[:data][:attributes]).to have_key(:poster_path)
-      expect(json[:data][:attributes]).to have_key(:adult)
-      expect(json[:data][:attributes]).to have_key(:overview)
-      expect(json[:data][:attributes]).to have_key(:release_date)
-      expect(json[:data][:attributes]).to have_key(:genre_ids)
-      expect(json[:data][:attributes]).to have_key(:id)
-      expect(json[:data][:attributes]).to have_key(:orignal_title)
-      expect(json[:data][:attributes]).to have_key(:original_language)
-      expect(json[:data][:attributes]).to have_key(:title)
-      expect(json[:data][:attributes]).to have_key(:backdrop_path)
-      expect(json[:data][:attributes]).to have_key(:popularity)
-      expect(json[:data][:attributes]).to have_key(:vote_count)
-      expect(json[:data][:attributes]).to have_key(:video)
-      expect(json[:data][:attributes]).to have_key(:vote_average)
+      json[:data].each do |movie|
+        expect(movie).to have_key(:id)
+        expect(movie[:type]).to eq("movie")
+        expect(movie[:attributes]).to have_key(:title)
+        expect(movie[:attributes]).to have_key(:vote_average)
+      end
     end
   end
 end
