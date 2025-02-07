@@ -11,7 +11,7 @@ RSpec.describe MovieGateway do
           headers: {
         'Accept'=>'*/*',
         'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Authorization'=>Rails.application.credentials.themoviedb[:key],
+        'Authorization'=>"Bearer #{Rails.application.credentials.themoviedb[:token]}",
         'User-Agent'=>'Faraday v2.10.1'
           }).
         to_return(status: 200, body: json_response)
@@ -33,7 +33,7 @@ RSpec.describe MovieGateway do
           headers: {
         'Accept'=>'*/*',
         'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Authorization'=>Rails.application.credentials.themoviedb[:key],
+        'Authorization'=>"Bearer #{Rails.application.credentials.themoviedb[:token]}",
         'User-Agent'=>'Faraday v2.10.1'
           }).
         to_return(status: 200, body: json_response)

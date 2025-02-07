@@ -10,12 +10,12 @@ RSpec.describe "Movies Endpoint" do
            headers: {
           'Accept'=>'*/*',
           'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Authorization'=>Rails.application.credentials.themoviedb[:key],
+          'Authorization'=>"Bearer #{Rails.application.credentials.themoviedb[:token]}",
           'User-Agent'=>'Faraday v2.10.1'
            }).
          to_return(status: 200, body: json_response)
 
-      get "/api/v1/movies/top_rated?search=top_rated&total_results=20"
+      get "/api/v1/movies/top_rated?request=top_rated&total_results=20"
 
       expect(response).to be_successful
       json = JSON.parse(response.body, symbolize_names: true)
@@ -43,7 +43,7 @@ RSpec.describe "Movies Endpoint" do
           }).
         to_return(status: 200, body: json_response)
 
-        get "/api/v1/movies/search?search=Interstellar"
+        get "/api/v1/movies/search?request=search&search=Interstellar"
 
         expect(response).to be_successful
         json = JSON.parse(response.body, symbolize_names: true)
