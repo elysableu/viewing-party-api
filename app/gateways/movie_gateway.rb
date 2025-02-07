@@ -1,15 +1,31 @@
-class MovieGateway 
-  def self.fetch_top_rated_movies(num_results)
-    # if num_results <= 20 
-      conn = Faraday.new(url: "https://api.themoviedb.org") do |faraday|
-        faraday.headers["Authorization"] = "Bearer #{Rails.application.credentials.themoviedb[:token]}"
-      end
+class MovieGateway
+  def self.fetch_top_rated_movies()
+      conn = connect()
 
-      response = conn.get("/3/movie/top_rated", { total_results: num_results })
+      response = conn.get("/3/movie/top_rated", { page: 1 })
 
       json = JSON.parse(response.body, symbolize_names: true)
 
       json[:results]
-    # end
+  end
+
+  def self.fetch_movies_by_search(query)
+    conn = connect()
+
+    response = conn.get("/3/search/movie", { query: query, page: 1 } )
+
+    json = JSON.parse(response.body, symbolize_names: true)
+
+    json[:results]
+  end
+
+  private
+
+  def self.connect
+    conn = Faraday.new(url: "https://api.themoviedb.org") do |faraday|
+      faraday.headers["Authorization"] = "Bearer #{Rails.application.credentials.themoviedb[:token]}"
+    end
+
+    return conn
   end
 end

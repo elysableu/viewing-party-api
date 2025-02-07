@@ -6,17 +6,19 @@ RSpec.describe MovieGateway do
     # OUTPUT -> JSON response
     json_response = File.read('spec/fixtures/themoviedb_top_rated_response.json')
 
-    stub_request(:get, "https://api.themoviedb.org/3/movie/top_rated?total_results=20").
+    stub_request(:get, "https://api.themoviedb.org/3/movie/top_rated?page=1").
         with(
           headers: {
         'Accept'=>'*/*',
         'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Authorization'=>Rails.application.credentials.themoviedb[:key],
+        'Authorization'=>"Bearer #{Rails.application.credentials.themoviedb[:token]}",
         'User-Agent'=>'Faraday v2.10.1'
           }).
         to_return(status: 200, body: json_response)
 
-    fetched_movies = MovieGateway.fetch_top_rated_movies(20)
+    fetched_movies = MovieGateway.fetch_top_rated_movies()
+
+    expect(fetched_movies.count).to eq(20)
 
     fetched_movies.each do |movie|
       expect(movie).to have_key :id
@@ -25,20 +27,23 @@ RSpec.describe MovieGateway do
     end
   end
 
-  it "should make a call to theMovieDB to retrieve a movie based on search query" do
-    json_response = File.read('spec/fixtures/themoviedb_top_rated_response.json')
+  it "should make a call to theMovieDB to retrieve a list of movies based on search query" do
+    json_response = File.read('spec/fixtures/themoviedb_search_movie_response.json')
 
-    stub_request(:get, "https://api.themoviedb.org/3/search/movie?query=Interstellar").
+    stub_request(:get, "https://api.themoviedb.org/3/search/movie?query=Interstellar&page=1").
         with(
           headers: {
         'Accept'=>'*/*',
         'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Authorization'=>Rails.application.credentials.themoviedb[:key],
+        'Authorization'=>"Bearer #{Rails.application.credentials.themoviedb[:token]}",
         'User-Agent'=>'Faraday v2.10.1'
           }).
         to_return(status: 200, body: json_response)
 
-    fetched_movies = MovieGateway.fetch_movie_by_title("Interstellar")
+    fetched_movies = MovieGateway.fetch_movies_by_search("Interstellar")
+
+    expect(fetched_movies.count).to eq(20)
+
     movie = fetched_movies[0]
 
     expect(movie).to have_key :id
@@ -48,22 +53,4 @@ RSpec.describe MovieGateway do
     expect(movie).to have_key :vote_average
     expect(movie[:vote_average]).to eq(8.4)
   end
-
-  # it "should return an error if num_results query is greater than 20" do
-  #   json_response = File.read('spec/fixtures/themoviedb_top_rated_response.json')
-
-  #   stub_request(:get, "https://api.themoviedb.org/3/movie/top_rated?total_results=20").
-  #       with(
-  #         headers: {
-  #       'Accept'=>'*/*',
-  #       'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-  #       'Authorization'=>Rails.application.credentials.themoviedb[:key],
-  #       'User-Agent'=>'Faraday v2.10.1'
-  #         }).
-  #       to_return(status: 200, body: json_response)
-
-  #   expect{ MovieGateway.fetch_top_rated_movies(21) }.to raise_error()
-
-    
-  # end
 end
