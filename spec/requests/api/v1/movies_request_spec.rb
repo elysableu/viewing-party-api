@@ -43,7 +43,7 @@ RSpec.describe "Movies Endpoint" do
           }).
         to_return(status: 200, body: json_response)
 
-        get "/api/v1/movies/search?request=search&search=Interstellar"
+        get "/api/v1/movies/search?request=search&query=Interstellar"
 
         expect(response).to be_successful
         json = JSON.parse(response.body, symbolize_names: true)
