@@ -1,0 +1,30 @@
+{
+    "data": {
+      "id": "1",
+      "type": "viewing_party",
+      "attributes": {
+        "name": "Juliet's Bday Movie Bash!",
+        "start_time": "2025-02-01 10:00:00",
+        "end_time": "2025-02-01 14:30:00",
+        "movie_id": 278,
+        "movie_title": "The Shawshank Redemption",
+        "invitees": [
+          {
+            "id": 11,
+            "name": "Barbara",
+            "username": "leo_fan"
+          },
+                  {
+            "id": 7,
+            "name": "Ceci",
+            "username": "titanic_forever"
+          },
+                  {
+            "id": 5,
+            "name": "Peyton",
+            "username": "star_wars_geek_8"
+          }
+        ]
+      }
+    }
+  }
