@@ -9,7 +9,7 @@ class ViewingParty < ApplicationRecord
   has_many :viewing_party_users
   has_many :users, through: :viewing_party_users
 
-  def invite_guests(invitee_ids)
+  def invite_guests(invitee_ids)  
     invitee_ids[:invitees].each do |id|
       self.users << User.where(id: id)
     end
