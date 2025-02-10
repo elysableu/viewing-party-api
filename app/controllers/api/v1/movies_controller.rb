@@ -10,4 +10,9 @@ class Api::V1::MoviesController < ApplicationController
       render json: MovieSerializer.format_movie_list(results)
     end
   end
+
+  def show
+    movie_details = MovieGateway.fetch_movie_details( params[:query] )
+    render json: MovieSerializer.format_movie_details(movie_details)
+  end
 end
