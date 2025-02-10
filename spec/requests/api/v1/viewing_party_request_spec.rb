@@ -94,7 +94,7 @@ RSpec.describe "ViewingPartys API", type: :request do
       json = JSON.parse(response.body, symbolize_names: :true)
 
       expect(response).to have_http_status(:bad_request)
-      expect(json[:message]).to eq("Request failed: party start time msut be before it's end time")
+      expect(json[:message]).to eq("Request failed: party start time must be before it's end time")
       expect(json[:status]).to eq(400)
     end
 
@@ -104,7 +104,7 @@ RSpec.describe "ViewingPartys API", type: :request do
       params = {
         name: "Turing Cohort Movie Night!",
         start_time: "2025-03-17 18:00:00",
-        end_time: "2025-03-17 16:30:00",
+        end_time: "2025-03-17 18:30:00",
         movie_id: @movie['id'],
         movie_title: @movie['title'],
         host_id: @host.id,
@@ -112,7 +112,7 @@ RSpec.describe "ViewingPartys API", type: :request do
       }
 
       post "/api/v1/viewing_parties", params: params, as: :json
-
+    
       created_viewing_party = ViewingParty.last
 
       expect(response).to be_successful
