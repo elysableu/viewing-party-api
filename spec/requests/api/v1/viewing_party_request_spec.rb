@@ -166,5 +166,35 @@ RSpec.describe "ViewingPartys API", type: :request do
       expect(response).to be_successful
       expect(created_viewing_party.users.count).to eq(params[:invitees].count - 1)
     end
+
+    it "can only invite user to existing viewingParty with valid id" do
+      test_guest_id = 99999
+
+      viewingParty = ViewingParty.create!(name: "Turing Cohort Movie Night!",
+                                            start_time: "2025-03-17 18:00:00",
+                                            end_time: "2025-03-17 20:30:00",
+                                            movie_id: @movie['id'],
+                                            movie_title: @movie['title'],
+                                            host_id: @host.id)
+
+      viewingParty.invite_guests(invitees: [ @host.id, @guest1.id, @guest2.id ])
+
+      expect(viewingParty.users.count).to eq(3)
+
+      post "/api/v1/viewing_parties/invitations", params: { viewingParty: viewingParty.id, invitee: test_guest_id} , as: :json
+      
+      expect(viewingParty.users.count).to eq(3)
+    end
+
+    it "can only invite users to viewingParty with valid id" do
+      test_viewing_party_id = 99999
+
+      post "/api/v1/viewing_parties/invitations", params: { viewingParty: test_viewing_party_id, invitee: @new_guest.id} , as: :json
+      json = JSON.parse(response.body, symbolize_names: :true)
+
+      expect(response).to have_http_status(:bad_request)
+      expect(json[:message]).to eq("Couldn't find ViewingParty with 'id'=99999")
+      expect(json[:status]).to eq(400)
+    end
   end
 end
