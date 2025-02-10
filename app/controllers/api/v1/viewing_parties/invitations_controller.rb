@@ -5,7 +5,6 @@ class Api::V1::ViewingParties::InvitationsController < ApplicationController
     render json: ViewingPartySerializer.format_viewing_party(viewing_party), status: :created
   end
 
-
   private
 
   def find_party
