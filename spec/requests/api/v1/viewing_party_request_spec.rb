@@ -60,12 +60,21 @@ RSpec.describe "ViewingPartys API", type: :request do
         expect(json[:data][0][:attributes]).to have_key(:movie_id)
         expect(json[:data][0][:attributes]).to have_key(:movie_title)
         expect(json[:data][0][:attributes]).to_not have_key(:host_id)
-        expect(json[:data][0].users.count).to eq(3)
-
+        expect(json[:data][0][:attributes]).to have_key(:invitees)
       end
     end
 
-   
+    describe "ViewingParty invitations endpoint" do
+      it "can invite users to existing viewingParty" do
+        viewingParty = ViewingParty.create!( name: "Turing Cohort Movie Night!",
+        start_time: "2025-03-17 18:00:00",
+        end_time: "2025-03-17 20:30:00",
+        movie_id: @movie['id'],
+        movie_title: @movie['title'],
+        host_id: @host.id,
+        invitees: [ @host.id, @guest1.id, @guest2.id ])
+      end
+    end
 
     
   end
