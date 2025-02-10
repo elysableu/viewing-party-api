@@ -11,7 +11,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users, only: [:create, :index]
       resources :sessions, only: :create
-      resources :viewing_parties, only: [:create, :index, :update]
+      resources :viewing_parties, only: [:create, :index]
       resources :movies, only: :index do
         collection do
           get :top_rated, action: :index

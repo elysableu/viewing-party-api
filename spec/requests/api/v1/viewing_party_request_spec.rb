@@ -36,6 +36,38 @@ RSpec.describe "ViewingPartys API", type: :request do
         expect(created_viewing_party.users.count).to eq(params[:invitees].count)
       end
     end
+
+    describe "index ViewParty endpoint" do
+      it "can return the list of viewingParties with invitees" do
+        viewingParty = ViewingParty.create!( name: "Turing Cohort Movie Night!",
+                                            start_time: "2025-03-17 18:00:00",
+                                            end_time: "2025-03-17 20:30:00",
+                                            movie_id: @movie['id'],
+                                            movie_title: @movie['title'],
+                                            host_id: @host.id)
+
+        viewingParty.invite_guests(invitees: [ @host.id, @guest1.id, @guest2.id ])
+                                      
+
+        get "/api/v1/viewing_parties"  
+
+        expect(response).to be_successful
+        json = JSON.parse(response.body, symbolize_names: :true)
+
+        expect(json[:data][0][:attributes]).to have_key(:name)
+        expect(json[:data][0][:attributes]).to have_key(:start_time)
+        expect(json[:data][0][:attributes]).to have_key(:end_time)
+        expect(json[:data][0][:attributes]).to have_key(:movie_id)
+        expect(json[:data][0][:attributes]).to have_key(:movie_title)
+        expect(json[:data][0][:attributes]).to_not have_key(:host_id)
+        expect(json[:data][0].users.count).to eq(3)
+
+      end
+    end
+
+   
+
+    
   end
 
   describe "sad paths" do
