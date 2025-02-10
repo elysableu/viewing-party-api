@@ -4,10 +4,9 @@ RSpec.describe "ViewingPartys API", type: :request do
   describe "create ViewingParty endpoint" do
     it "can create a viewingParty" do
 
-      host = User.create!(name: "Bobby", username: "bobbee123", password: "ghjtjtkekek33874")
-      guest1 = User.create!(name: "Carry", username: "carbear15", password: "480jr4njkdfsnjk")
-      guest2 = User.create!(name: "Bobby", username: "bobbee12", password: "ghjtjtkekek33874")
-
+      host = User.create!(name: "Bobby", username: "bobbee123", password: "ghjtjtkekek33874", password_confirmation: "ghjtjtkekek33874")
+      guest1 = User.create!(name: "Carry", username: "carbear15", password: "480jr4njkdfsnjk", password_confirmation: "480jr4njkdfsnjk")
+      guest2 = User.create!(name: "Donny", username: "donn562", password: "fhdjsk8348uy839839",  password_confirmation: "fhdjsk8348uy839839")
 
       params = {
         name: "Turing Cohort Movie Night!",
@@ -15,13 +14,11 @@ RSpec.describe "ViewingPartys API", type: :request do
         end_time: "2025-03-17 20:30:00",
         movie_id: 278,
         movie_title: "The Shawshank Redemption",
-        invitees: [guest1[:id], guest2[:id]],
-        host_id: host[:id]
+        host_id: host[:id],
+        invitees: [guest1.id, guest2.id]
       }
 
-      headers = { "CONTENT_TYPE" => "application/json" }
-
-      post "/api/v1/view_parties", headers: headers, params: JSON.generate(viewing_party: params)
+      post "/api/v1/viewing_parties", params: params, as: :json
       
       created_viewing_party = ViewingParty.last
 
@@ -30,8 +27,8 @@ RSpec.describe "ViewingPartys API", type: :request do
       expect(created_viewing_party.start_time).to eq(params[:start_time])
       expect(created_viewing_party.end_time).to eq(params[:end_time])
       expect(created_viewing_party.movie_id).to eq(params[:movie_id])
-      expect(created_viewing_party.invitees).to eq(params[:invitees])
       expect(created_viewing_party.host_id).to eq(params[:host_id])
+      expect(created_viewing_party.users.count).to eq(params[:invitees].count)
     end
   end
 end
