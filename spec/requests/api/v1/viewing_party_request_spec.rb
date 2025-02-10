@@ -39,12 +39,25 @@ RSpec.describe "ViewingPartys API", type: :request do
   end
 
   describe "sad paths" do
-    it "returns an error when request is missing required attributes of rviewing party" do
+    it "returns an error when request is missing required attributes of viewing party" do
+      params = {
+        name: "Turing Cohort Movie Night!",
+        start_time: "2025-03-17 18:00:00",
+        end_time: "2025-03-17 20:30:00",
+        host_id: @host.id,
+        invitees: [ @host.id, @guest1.id, @guest2.id ]
+      }
 
+      post "/api/v1/viewing_parties", params: params, as: :json
+      json = JSON.parse(response.body, symbolize_names: :true)
+      
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(json[:message]).to eq("Validation failed: Movie can't be blank, Movie title can't be blank")
+      expect(json[:status]).to eq(400)
     end
 
     it "returns an error when party duration is less than movie runtime" do
-
+      
     end
 
     it "returns an error when end time is before start time" do
