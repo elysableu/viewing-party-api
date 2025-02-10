@@ -91,9 +91,9 @@ RSpec.describe "ViewingPartys API", type: :request do
       }
 
       post "/api/v1/viewing_parties", params: params, as: :json
-      json = JSON.parse(reponse.body, symbolize_names: :true)
+      json = JSON.parse(response.body, symbolize_names: :true)
 
-      expect(response).too have_http_status(:bad_request)
+      expect(response).to have_http_status(:bad_request)
       expect(json[:message]).to eq("Request failed: party start time msut be before it's end time")
       expect(json[:status]).to eq(400)
     end

@@ -1,9 +1,11 @@
 class Api::V1::ViewingPartiesController < ApplicationController
   def create
     invitees = params.permit(invitees: [])
-    viewing_party = ViewingParty.create!(viewing_party_params)
-    viewing_party.invite_guests(invitees)
-    render json: ViewingPartySerializer.format_viewing_party(viewing_party, invitees), status: :created
+    if ViewingParty.valid?(viewing_party_params)
+      viewing_party = ViewingParty.create!(viewing_party_params)
+      viewing_party.invite_guests(invitees)
+      render json: ViewingPartySerializer.format_viewing_party(viewing_party, invitees), status: :created
+    end
   end
 
   private

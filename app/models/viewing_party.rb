@@ -15,4 +15,27 @@ class ViewingParty < ApplicationRecord
       self.users << User.where(id: id)
     end
   end
+
+  def self.valid?(params)
+    start_time = params[:start_time]
+    end_time = params[:end_time]
+
+    if valid_time?(start_time, end_time)
+      return true
+    else
+      raise ArgumentError, "Request failed: party start time msut be before it's end time"
+    end
+  end
+
+
+  def self.valid_time?(start_time, end_time)
+    start_time < end_time
+  end
+
+  # def self.valid_duration?(movie_title, start_time, end_time)
+  #   result = MovieGateway.fetch_movies_by_search( movie_title )[0]
+  #   binding.pry
+  # end
+
+  
 end
