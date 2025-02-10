@@ -9,6 +9,7 @@ class ViewingPartySerializer
   end
 
   def self.format_viewing_party(party, invitees)
+    # binding.pry
     { data:
         formatter(party, invitees)
     }
@@ -24,7 +25,7 @@ class ViewingPartySerializer
         movie_id: party[:movie_id],
         movie_title: party[:movie_title],
         invitees: [
-          invitee_ids[:invitees].each do |id|
+          invitee_ids[:invitees].map do |id|
             invitees_formatter(id)
           end
         ]

@@ -8,14 +8,14 @@ RSpec.describe "ViewingPartys API", type: :request do
       guest1 = User.create!(name: "Carry", username: "carbear15", password: "480jr4njkdfsnjk", password_confirmation: "480jr4njkdfsnjk")
       guest2 = User.create!(name: "Donny", username: "donn562", password: "fhdjsk8348uy839839",  password_confirmation: "fhdjsk8348uy839839")
 
-      params = {
+      param = {
         name: "Turing Cohort Movie Night!",
         start_time: "2025-03-17 18:00:00",
         end_time: "2025-03-17 20:30:00",
         movie_id: 278,
         movie_title: "The Shawshank Redemption",
-        host_id: host[:id],
-        invitees: [guest1.id, guest2.id]
+        host_id: host.id,
+        invitees: [ host.id, guest1.id, guest2.id ]
       }
 
       post "/api/v1/viewing_parties", params: params, as: :json
