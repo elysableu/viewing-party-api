@@ -12,7 +12,7 @@ Rails.application.routes.draw do
       resources :users, only: [:create, :index]
       resources :sessions, only: :create
       namespace :viewing_parties do
-        resources :invitations, only: :create, controller: :invitations, action: :invite
+        resources :invitations, only: :create, controller: :invitations, action: :create
       end
       resources :viewing_parties, only: [:create, :index]
       resources :movies, only: :index do

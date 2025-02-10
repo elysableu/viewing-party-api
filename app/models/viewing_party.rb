@@ -31,6 +31,4 @@ class ViewingParty < ApplicationRecord
   #   result = MovieGateway.fetch_movies_by_search( movie_title )[0]
   #   binding.pry
   # end
-
-  
 end
