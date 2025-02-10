@@ -60,6 +60,68 @@ RSpec.describe "Movies Endpoint" do
         expect(first_result[:attributes]).to have_key :vote_average
         expect(first_result[:attributes][:vote_average]).to eq(8.4)
     end
+
+    describe "movie details endpoint" do 
+      before(:each) do
+        @target_movie_id = 157336
+      end
+
+      it "can return most of the movie details for a specific movie" do
+        get "/api/v1/movie/#{@target_movie_id}"
+
+        expect(response).to be_successful
+        json = JSON.parse(response.body, symbolize_names: :true)
+        
+        result = json[:data][0]
+
+        expect(result).to have_key :id
+        expect(result[:id]).to eq("157336")
+        expect(result[:type]).to eq("movie")
+        expect(result[:attributes]).to have_key :title
+        expect(result[:attributes][:title]).to eq("Interstellar")
+        expect(result[:attributes]).to have_key :release_data
+        expect(result[:attributes][:title]).to eq( "2014-11-05")
+        expect(result[:attributes]).to have_key :vote_average
+        expect(result[:attributes][:vote_average]).to eq(8.4)
+        expect(result[:attributes]).to have_key :runtime
+        expect(result[:attributes][:vote_average]).to eq(169)
+        expect(result[:attributes]).to have_key :genres
+        expect(result[:attributes]).to have_key :overview
+        expect(result[:attributes][:vote_average]).to eq(169)
+        expect(result[:attributes]).to have_key :runtime
+        expect(result[:attributes][:vote_average]).to eq(169)
+      end
+
+      it "can return the cast of a movie" do
+        get "/api/v1/movie/#{@target_movie_id}/credits"
+
+        expect(response).to be_successful
+        json = JSON.parse(response.body, symbolize_names: :true)
+        
+        result = json[:data][0]
+
+        expect(result).to have_key :id
+        expect(result[:id]).to eq("157336")
+        expect(result[:attributes]).to have_key :cast
+        expect(result[:attributes][:cast]).to have_key :character
+        expect(result[:attributes][:cast]).to have_key :name
+      end
+
+      it "can return total number of reviews and first 5 reviews" do
+        get "/api/v1/movie/#{@target_movie_id}/reviews"
+
+        expect(response).to be_successful
+        json = JSON.parse(response.body, symbolize_names: :true)
+        
+        result = json[:data][0]
+
+        expect(result).to have_key :id
+        expect(result[:id]).to eq("157336")
+        expect(result[:attributes]).to have_key :total_results
+        expect(result[:attributes][:results]).to have_key :author
+        expect(result[:attributes][:results]).to have_key :content
+      end
+    end
   end
 
   describe "sad path" do
