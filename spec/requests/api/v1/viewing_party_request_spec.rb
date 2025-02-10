@@ -5,7 +5,8 @@ RSpec.describe "ViewingPartys API", type: :request do
     @host = User.create!(name: "Bobby", username: "bobbee123", password: "ghjtjtkekek33874", password_confirmation: "ghjtjtkekek33874")
     @guest1 = User.create!(name: "Carry", username: "carbear15", password: "480jr4njkdfsnjk", password_confirmation: "480jr4njkdfsnjk")
     @guest2 = User.create!(name: "Donny", username: "donn562", password: "fhdjsk8348uy839839",  password_confirmation: "fhdjsk8348uy839839")
-    
+    @new_guest = User.create!(name: "Franky", username: "franks98", password: "893542uhfdiush",  password_confirmation: "893542uhfdiush")
+
     movies = File.read('spec/fixtures/themoviedb_search_movie_response.json')
     @movie = JSON.parse(movies)['results'].first
   end
@@ -66,17 +67,23 @@ RSpec.describe "ViewingPartys API", type: :request do
 
     describe "ViewingParty invitations endpoint" do
       it "can invite users to existing viewingParty" do
-        viewingParty = ViewingParty.create!( name: "Turing Cohort Movie Night!",
-        start_time: "2025-03-17 18:00:00",
-        end_time: "2025-03-17 20:30:00",
-        movie_id: @movie['id'],
-        movie_title: @movie['title'],
-        host_id: @host.id,
-        invitees: [ @host.id, @guest1.id, @guest2.id ])
+        viewingParty = ViewingParty.create!(name: "Turing Cohort Movie Night!",
+                                            start_time: "2025-03-17 18:00:00",
+                                            end_time: "2025-03-17 20:30:00",
+                                            movie_id: @movie['id'],
+                                            movie_title: @movie['title'],
+                                            host_id: @host.id)
+
+        viewingParty.invite_guests(invitees: [ @host.id, @guest1.id, @guest2.id ])
+
+        expect(viewingParty.users.count).to eq(3)
+
+        post "/api/v1/viewing_parties/invitations", params: { viewingParty: viewingParty.id, invitee: @new_guest.id} , as: :json
+
+        expect(response).to be_successful
+        expect(viewingParty.users.count).to eq(4)
       end
     end
-
-    
   end
 
   describe "sad paths" do
