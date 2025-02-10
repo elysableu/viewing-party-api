@@ -19,6 +19,21 @@ class MovieGateway
     json[:results]
   end
 
+  def self.fetch_movie_details(query)
+    conn = connect()
+    details_response = conn.get("/3/movie/#{query.to_i}")
+    credits_response = conn.get("/3/movie/#{query.to_i}/credits")
+    reviews_response = conn.get("/3/movie/#{query.to_i}/reviews")
+
+    details = JSON.parse(details_response.body)
+    credits = JSON.parse(credits_response.body)
+    reviews = JSON.parse(reviews_response.body)
+
+    target_movie = Movie.new(details, credits, reviews)
+   
+    return target_movie
+  end
+
   private
 
   def self.connect
