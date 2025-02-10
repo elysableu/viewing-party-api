@@ -19,12 +19,8 @@ class ViewingParty < ApplicationRecord
   def self.valid?(params)
     start_time = params[:start_time]
     end_time = params[:end_time]
-
-    if valid_time?(start_time, end_time)
-      return true
-    else
-      raise ArgumentError, "Request failed: party start time msut be before it's end time"
-    end
+    
+    return valid_time?(start_time, end_time)
   end
 
 
