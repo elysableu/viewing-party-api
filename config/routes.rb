@@ -15,10 +15,11 @@ Rails.application.routes.draw do
         resources :invitations, only: :create, controller: :invitations, action: :create
       end
       resources :viewing_parties, only: [:create, :index]
-      resources :movies, only: :index do
+      resources :movies, only: [ :index, :show ] do
         collection do
           get :top_rated, action: :index
           get :search, action: :index
+          get :movie_details, action: :show
         end
       end
     end
