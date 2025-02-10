@@ -6,8 +6,8 @@ RSpec.describe "ViewingPartys API", type: :request do
     @guest1 = User.create!(name: "Carry", username: "carbear15", password: "480jr4njkdfsnjk", password_confirmation: "480jr4njkdfsnjk")
     @guest2 = User.create!(name: "Donny", username: "donn562", password: "fhdjsk8348uy839839",  password_confirmation: "fhdjsk8348uy839839")
     
-    top_rated_movies = File.read('spec/fixtures/themoviedb_top_rated_response.json')
-    @movie = JSON.parse(top_rated_movies)['results'].first
+    movies = File.read('spec/fixtures/themoviedb_search_movie_response.json')
+    @movie = JSON.parse(movies)['results'].first
   end
 
   describe "happy paths" do
@@ -56,16 +56,67 @@ RSpec.describe "ViewingPartys API", type: :request do
       expect(json[:status]).to eq(400)
     end
 
-    it "returns an error when party duration is less than movie runtime" do
-      
+    xit "returns an error when party duration is less than movie runtime" do
+      WebMock.allow_net_connect!
+
+      params = {
+        name: "Turing Cohort Movie Night!",
+        start_time: "2025-03-17 18:00:00",
+        end_time: "2025-03-17 18:30:00",
+        movie_id: @movie['id'],
+        movie_title: @movie['title'],
+        host_id: @host.id,
+        invitees: [ @host.id, @guest1.id, @guest2.id ]
+      }
+
+      post "/api/v1/viewing_parties", params: params, as: :json
+      json = JSON.parse(reponse.body, symbolize_names: :true)
+
+      expect(response).too have_http_status(:bad_request)
+      expect(json[:message]).to eq("Request failed: party duration must be longer than movie runtime")
+      expect(json[:status]).to eq(400)
+
+      WebMock.disable_net_connect!
     end
 
     it "returns an error when end time is before start time" do
+      params = {
+        name: "Turing Cohort Movie Night!",
+        start_time: "2025-03-17 18:00:00",
+        end_time: "2025-03-17 16:30:00",
+        movie_id: @movie['id'],
+        movie_title: @movie['title'],
+        host_id: @host.id,
+        invitees: [ @host.id, @guest1.id, @guest2.id ]
+      }
 
+      post "/api/v1/viewing_parties", params: params, as: :json
+      json = JSON.parse(reponse.body, symbolize_names: :true)
+
+      expect(response).too have_http_status(:bad_request)
+      expect(json[:message]).to eq("Request failed: party start time msut be before it's end time")
+      expect(json[:status]).to eq(400)
     end
 
     it "only invites users with valid IDs" do
+      test_guest_id = 99999
 
+      params = {
+        name: "Turing Cohort Movie Night!",
+        start_time: "2025-03-17 18:00:00",
+        end_time: "2025-03-17 16:30:00",
+        movie_id: @movie['id'],
+        movie_title: @movie['title'],
+        host_id: @host.id,
+        invitees: [ @host.id, @guest1.id, @guest2.id, test_guest_id ]
+      }
+
+      post "/api/v1/viewing_parties", params: params, as: :json
+      json = JSON.parse(reponse.body, symbolize_names: :true)
+
+      expect(response).too have_http_status(:bad_request)
+      expect(json[:message]).to eq("Request failed: guest must have a valid user id")
+      expect(json[:status]).to eq(400)
     end
   end
 end
