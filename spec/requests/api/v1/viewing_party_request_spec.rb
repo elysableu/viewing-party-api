@@ -112,11 +112,11 @@ RSpec.describe "ViewingPartys API", type: :request do
       }
 
       post "/api/v1/viewing_parties", params: params, as: :json
-      json = JSON.parse(reponse.body, symbolize_names: :true)
 
-      expect(response).too have_http_status(:bad_request)
-      expect(json[:message]).to eq("Request failed: guest must have a valid user id")
-      expect(json[:status]).to eq(400)
+      created_viewing_party = ViewingParty.last
+
+      expect(response).to be_successful
+      expect(created_viewing_party.users.count).to eq(params[:invitees].count - 1)
     end
   end
 end
