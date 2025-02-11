@@ -87,4 +87,49 @@ RSpec.describe "Users API", type: :request do
       expect(json[:data][0][:attributes]).to_not have_key(:api_key)
     end
   end
+
+  describe "Retrieve User Profile" do
+    before(:each) do
+      @user1 = User.create!(name: "Tom", username: "myspace_creator", password: "test123")
+
+      @viewing_party1 = ViewingParty.create!("name": "Titanic Watch Party",
+                                              start_time: "2025-05-01 10:00:00",
+                                              end_time: "2025-05-01 14:30:00",
+                                              movie_id: 597,
+                                              movie_title: "Titanic",
+                                              host_id: @user1.id)
+                                          
+      @viewing_party1 = ViewingParty.create!("name": "Titanic Watch Party",
+                                              start_time: "2025-05-01 10:00:00",
+                                              end_time: "2025-05-01 14:30:00",
+                                              movie_id: 597,
+                                              movie_title: "Titanic",
+                                              host_id: @user1.id)
+    end
+
+    it "retrieves user profile by id" do
+      get "/api/v1/users/profile?user=#{@user1.id}"
+
+      expect(response).to be_successful
+      json = JSON.parse(response.body, symbolize_names: true)
+
+      expect(json[:data]).to have_key :id
+      expect(json[:data][:attributes]).to have_key :name
+      expect(json[:data][:attributes]).to have_key :username
+      expect(json[:data][:attributes]).to have_key :viewing_parties_hosted
+      expect(json[:data][:attributes]).to have_key :viewing_parties_invited
+    end
+
+    it "returns an empty collection of viewing_parties if user is not a host" do
+      test_user_id = 99999
+      
+      get "/api/v1/users/profile?user=#{test_user_id}"
+
+      json = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to have_http_status(:bad_request)
+      expect(json[:message]).to eq("Couldn't find User with 'id'=99999")
+      expect(json[:status]).to eq(400)
+    end
+  end
 end
