@@ -14,10 +14,12 @@ RSpec.describe "ViewingPartys API", type: :request do
   describe "happy paths" do
     describe "create ViewingParty endpoint" do
       it "can create a viewingParty" do
+        WebMock.allow_net_connect!
+
         params = {
           name: "Turing Cohort Movie Night!",
           start_time: "2025-03-17 18:00:00",
-          end_time: "2025-03-17 20:30:00",
+          end_time: "2025-03-17 21:30:00",
           movie_id: @movie['id'],
           movie_title: @movie['title'],
           host_id: @host.id,
@@ -27,7 +29,7 @@ RSpec.describe "ViewingPartys API", type: :request do
         post "/api/v1/viewing_parties", params: params, as: :json
         
         created_viewing_party = ViewingParty.last
-
+        
         expect(response).to be_successful
         expect(created_viewing_party.name).to eq(params[:name])
         expect(created_viewing_party.start_time).to eq(params[:start_time])
@@ -35,6 +37,8 @@ RSpec.describe "ViewingPartys API", type: :request do
         expect(created_viewing_party.movie_id).to eq(params[:movie_id])
         expect(created_viewing_party.host_id).to eq(params[:host_id])
         expect(created_viewing_party.users.count).to eq(params[:invitees].count)
+
+        WebMock.disable_net_connect!
       end
     end
 
@@ -42,7 +46,7 @@ RSpec.describe "ViewingPartys API", type: :request do
       it "can return the list of viewingParties with invitees" do
         viewingParty = ViewingParty.create!( name: "Turing Cohort Movie Night!",
                                             start_time: "2025-03-17 18:00:00",
-                                            end_time: "2025-03-17 20:30:00",
+                                            end_time: "2025-03-17 21:30:00",
                                             movie_id: @movie['id'],
                                             movie_title: @movie['title'],
                                             host_id: @host.id)
@@ -69,7 +73,7 @@ RSpec.describe "ViewingPartys API", type: :request do
       it "can invite users to existing viewingParty" do
         viewingParty = ViewingParty.create!(name: "Turing Cohort Movie Night!",
                                             start_time: "2025-03-17 18:00:00",
-                                            end_time: "2025-03-17 20:30:00",
+                                            end_time: "2025-03-17 21:30:00",
                                             movie_id: @movie['id'],
                                             movie_title: @movie['title'],
                                             host_id: @host.id)
@@ -88,6 +92,8 @@ RSpec.describe "ViewingPartys API", type: :request do
 
   describe "sad paths" do
     it "returns an error when request is missing required attributes of viewing party" do
+      WebMock.allow_net_connect!
+
       params = {
         name: "Turing Cohort Movie Night!",
         start_time: "2025-03-17 18:00:00",
@@ -102,9 +108,11 @@ RSpec.describe "ViewingPartys API", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
       expect(json[:message]).to eq("Validation failed: Movie can't be blank, Movie title can't be blank")
       expect(json[:status]).to eq(400)
+
+      WebMock.disable_net_connect!
     end
 
-    xit "returns an error when party duration is less than movie runtime" do
+    it "returns an error when party duration is less than movie runtime" do
       WebMock.allow_net_connect!
 
       params = {
@@ -118,10 +126,10 @@ RSpec.describe "ViewingPartys API", type: :request do
       }
 
       post "/api/v1/viewing_parties", params: params, as: :json
-      json = JSON.parse(reponse.body, symbolize_names: :true)
+      json = JSON.parse(response.body, symbolize_names: :true)
 
-      expect(response).too have_http_status(:bad_request)
-      expect(json[:message]).to eq("Request failed: party duration must be longer than movie runtime")
+      expect(response).to have_http_status(:bad_request)
+      expect(json[:message]).to eq("Request failed: viewing party start time and end time must be valid")
       expect(json[:status]).to eq(400)
 
       WebMock.disable_net_connect!
@@ -142,17 +150,19 @@ RSpec.describe "ViewingPartys API", type: :request do
       json = JSON.parse(response.body, symbolize_names: :true)
 
       expect(response).to have_http_status(:bad_request)
-      expect(json[:message]).to eq("Request failed: party start time must be before it's end time")
+      expect(json[:message]).to eq("Request failed: viewing party start time and end time must be valid")
       expect(json[:status]).to eq(400)
     end
 
     it "only invites users with valid IDs" do
+      WebMock.allow_net_connect!
+
       test_guest_id = 99999
 
       params = {
         name: "Turing Cohort Movie Night!",
         start_time: "2025-03-17 18:00:00",
-        end_time: "2025-03-17 18:30:00",
+        end_time: "2025-03-17 21:30:00",
         movie_id: @movie['id'],
         movie_title: @movie['title'],
         host_id: @host.id,
@@ -162,9 +172,11 @@ RSpec.describe "ViewingPartys API", type: :request do
       post "/api/v1/viewing_parties", params: params, as: :json
     
       created_viewing_party = ViewingParty.last
-
+      
       expect(response).to be_successful
       expect(created_viewing_party.users.count).to eq(params[:invitees].count - 1)
+
+      WebMock.disable_net_connect!
     end
 
     it "can only invite user to existing viewingParty with valid id" do

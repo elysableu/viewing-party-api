@@ -4,10 +4,6 @@ class ApplicationController < ActionController::API
   end
   
   rescue_from ActiveRecord::RecordNotFound do |e|
-    if e.message.include?("Counldn't find User with 'id'=")
-      head :ok
-    else
-      render json: ErrorSerializer.format_error(ErrorMessage.new(e.message, 400)), status: :bad_request
-    end
+    render json: ErrorSerializer.format_error(ErrorMessage.new(e.message, 400)), status: :bad_request
   end
 end

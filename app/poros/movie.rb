@@ -24,6 +24,8 @@ class Movie
     @reviews = limit_reviews(reviews["results"])
   end
 
+  private
+
   def format_genre(genres)
     genres.map { |genre|
       genre["name"]
