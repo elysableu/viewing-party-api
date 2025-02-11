@@ -7,10 +7,6 @@ class MovieSerializer
     }
   end
 
-  def self.format_movie(movie)
-    { data: formatter(movie) }
-  end
-
   def self.formatter(movie)
     {
       id: movie[:id].to_s,

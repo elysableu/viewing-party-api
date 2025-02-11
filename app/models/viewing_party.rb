@@ -15,11 +15,16 @@ class ViewingParty < ApplicationRecord
     end
   end
 
-  def self.valid?(params)
+  def self.valid_movie_params?(params)
+    params[:movie_id].present? && params[:movie_title].present?
+  end
+
+  def self.valid_time_and_duration?(params)
     start_time = params[:start_time]
     end_time = params[:end_time]
+    movie_id = params[:movie_id]
     
-    return valid_time?(start_time, end_time)
+    return valid_time?(start_time, end_time) && valid_duration?(movie_id, start_time, end_time)
   end
 
 
@@ -27,8 +32,10 @@ class ViewingParty < ApplicationRecord
     start_time < end_time
   end
 
-  # def self.valid_duration?(movie_title, start_time, end_time)
-  #   result = MovieGateway.fetch_movies_by_search( movie_title )[0]
-  #   binding.pry
-  # end
+  def self.valid_duration?(movie_id, start_time, end_time)
+    runtime = MovieGateway.fetch_movie_details( movie_id ).runtime
+    party_duration = (Time.parse(end_time) - Time.parse(start_time)) / 60   # (duration in seconds) / 60 = duration in minutes 
+    
+    runtime < party_duration
+  end
 end
